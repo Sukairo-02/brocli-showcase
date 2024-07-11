@@ -142,6 +142,80 @@ Flags:
 Global Flags:
   -c, --config-path string   Path to the directory with config file`,
 		}),
+		command({
+			name: 'logout',
+			description: 'Log out currently logged in user.',
+			options: globFlags,
+			handler: universalHandler('auth logout'),
+			help: `Log out currently logged in user.
+
+Usage:
+  turso auth logout [flags]
+
+Flags:
+  -a, --all    Invalidate all sessions for the current user
+  -h, --help   help for logout
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+		}),
+		command({
+			name: 'signup',
+			description: 'Login to the platform.',
+			options: {
+				...globFlags,
+				headless: boolean().desc(
+					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
+				),
+			},
+			handler: universalHandler('auth signup'),
+			help: `Create a new Turso account.
+
+Usage:
+  turso auth signup [flags]
+
+Flags:
+      --headless   Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.
+  -h, --help       help for signup
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+		}),
+		command({
+			name: 'token',
+			description: `Shows the token used to authenticate you to Turso platform API.
+To authenticate to your databases, use turso db tokens create`,
+			options: globFlags,
+			handler: universalHandler('auth token'),
+			help: `Shows the token used to authenticate you to Turso platform API.
+To authenticate to your databases, use turso db tokens create
+
+Usage:
+  turso auth token [flags]
+
+Flags:
+  -h, --help   help for token
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+		}),
+		command({
+			name: 'Show the currently logged in user.',
+			description: `Shows the token used to authenticate you to Turso platform API.
+To authenticate to your databases, use turso db tokens create`,
+			options: globFlags,
+			handler: universalHandler('auth whoami'),
+			help: `Show the currently logged in user.
+
+Usage:
+  turso auth whoami [flags]
+
+Flags:
+  -h, --help   help for whoami
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+		}),
 	],
 }));
 

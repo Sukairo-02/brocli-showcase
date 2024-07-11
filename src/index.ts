@@ -7,7 +7,7 @@ const globFlags = {
 };
 
 const universalHandler = (name: string) => (opts: any) => {
-	console.log(`${name}:`);
+	console.log(`turso ${name}:`);
 	console.log(opts);
 };
 
@@ -41,7 +41,7 @@ Use "turso auth [command] --help" for more information about a command.`,
 			name: 'api-tokens',
 			description: 'Manage your API tokens',
 			options: globFlags,
-			handler: universalHandler('api-tokens'),
+			handler: universalHandler('auth api-tokens'),
 			help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who created them.
 They can be used to implement automations with the turso CLI or the platform API.
 
@@ -62,7 +62,61 @@ Global Flags:
 Use "turso auth api-tokens [command] --help" for more information about a command.`,
 			subcommands: [
 				command({
-					name: '',
+					name: 'list',
+					description:
+						`API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
+They can be used to implement automations with the turso CLI or the platform API.`,
+					options: globFlags,
+					handler: universalHandler('auth api-tokens list'),
+					help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
+They can be used to implement automations with the turso CLI or the platform API.
+
+Usage:
+  turso auth api-tokens list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+				}),
+				command({
+					name: 'mint',
+					description:
+						`API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
+They can be used to implement automations with the turso CLI or the platform API.`,
+					options: { ...globFlags, apiTokenName: positional('api-token-name').required() },
+					handler: universalHandler('auth api-tokens mint'),
+					help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
+They can be used to implement automations with the turso CLI or the platform API.
+
+Usage:
+  turso auth api-tokens mint <api-token-name> [flags]
+
+Flags:
+  -h, --help   help for mint
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+				}),
+				command({
+					name: 'revoke',
+					description:
+						`API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
+They can be used to implement automations with the turso CLI or the platform API.`,
+					options: { ...globFlags, apiTokenName: positional('api-token-name').required() },
+					handler: universalHandler('auth api-tokens revoke'),
+					help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
+They can be used to implement automations with the turso CLI or the platform API.
+
+Usage:
+  turso auth api-tokens revoke <api-token-name> [flags]
+
+Flags:
+  -h, --help   help for revoke
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
 				}),
 			],
 		}),

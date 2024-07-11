@@ -2,7 +2,7 @@ import { boolean, Command, command, positional, run, string } from '@drizzle-tea
 
 const commands: Command[] = [];
 
-const globFlags = {
+const globalFlags = {
 	config: string().alias('c').desc('Path to the directory with config file'),
 };
 
@@ -14,7 +14,7 @@ const universalHandler = (name: string) => (opts: any) => {
 commands.push(command({
 	name: 'auth',
 	description: 'Authenticate with Turso',
-	options: globFlags,
+	options: globalFlags,
 	handler: universalHandler('auth'),
 	help: `Authenticate with Turso
 
@@ -40,7 +40,7 @@ Use "turso auth [command] --help" for more information about a command.`,
 		command({
 			name: 'api-tokens',
 			description: 'Manage your API tokens',
-			options: globFlags,
+			options: globalFlags,
 			handler: universalHandler('auth api-tokens'),
 			help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who created them.
 They can be used to implement automations with the turso CLI or the platform API.
@@ -66,7 +66,7 @@ Use "turso auth api-tokens [command] --help" for more information about a comman
 					description:
 						`API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
-					options: globFlags,
+					options: globalFlags,
 					handler: universalHandler('auth api-tokens list'),
 					help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.
@@ -85,7 +85,7 @@ Global Flags:
 					description:
 						`API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
-					options: { ...globFlags, apiTokenName: positional('api-token-name').required() },
+					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
 					handler: universalHandler('auth api-tokens mint'),
 					help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.
@@ -104,7 +104,7 @@ Global Flags:
 					description:
 						`API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
-					options: { ...globFlags, apiTokenName: positional('api-token-name').required() },
+					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
 					handler: universalHandler('auth api-tokens revoke'),
 					help: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.
@@ -124,7 +124,7 @@ Global Flags:
 			name: 'login',
 			description: 'Login to the platform.',
 			options: {
-				...globFlags,
+				...globalFlags,
 				headless: boolean().desc(
 					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
 				),
@@ -145,7 +145,7 @@ Global Flags:
 		command({
 			name: 'logout',
 			description: 'Log out currently logged in user.',
-			options: globFlags,
+			options: globalFlags,
 			handler: universalHandler('auth logout'),
 			help: `Log out currently logged in user.
 
@@ -163,7 +163,7 @@ Global Flags:
 			name: 'signup',
 			description: 'Login to the platform.',
 			options: {
-				...globFlags,
+				...globalFlags,
 				headless: boolean().desc(
 					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
 				),
@@ -185,7 +185,7 @@ Global Flags:
 			name: 'token',
 			description: `Shows the token used to authenticate you to Turso platform API.
 To authenticate to your databases, use turso db tokens create`,
-			options: globFlags,
+			options: globalFlags,
 			handler: universalHandler('auth token'),
 			help: `Shows the token used to authenticate you to Turso platform API.
 To authenticate to your databases, use turso db tokens create
@@ -203,7 +203,7 @@ Global Flags:
 			name: 'Show the currently logged in user.',
 			description: `Shows the token used to authenticate you to Turso platform API.
 To authenticate to your databases, use turso db tokens create`,
-			options: globFlags,
+			options: globalFlags,
 			handler: universalHandler('auth whoami'),
 			help: `Show the currently logged in user.
 
@@ -215,6 +215,149 @@ Flags:
 
 Global Flags:
   -c, --config-path string   Path to the directory with config file`,
+		}),
+	],
+}));
+
+commands.push(command({
+	name: 'config',
+	description: 'Manage your CLI configuration',
+	options: globalFlags,
+	handler: universalHandler('config'),
+	help: `Manage your CLI configuration
+
+Usage:
+  turso config [command]
+
+Available Commands:
+  cache       Manage your CLI cache
+  path        Get the path to the CLI configuration file
+  set         Set a configuration value
+
+Flags:
+  -h, --help   help for config
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file
+
+Use "turso config [command] --help" for more information about a command.`,
+	subcommands: [
+		command({
+			name: 'cache',
+			description: 'Manage your CLI cache',
+			options: globalFlags,
+			handler: universalHandler('config cache'),
+			help: `Manage your CLI cache
+
+Usage:
+  turso config cache [command]
+
+Available Commands:
+  clear       Clear your CLI local cache
+
+Flags:
+  -h, --help   help for cache
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file
+
+Use "turso config cache [command] --help" for more information about a command.`,
+			subcommands: [
+				command({
+					name: 'clear',
+					description: 'Clear your CLI local cache',
+					options: globalFlags,
+					handler: universalHandler('config cache clear'),
+					help: `Clear your CLI local cache
+
+Usage:
+  turso config cache clear [flags]
+
+Flags:
+  -h, --help   help for clear
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+				}),
+			],
+		}),
+		command({
+			name: 'path',
+			description: 'Get the path to the CLI configuration file',
+			options: globalFlags,
+			handler: universalHandler('config path'),
+			help: `Get the path to the CLI configuration file
+
+Usage:
+  turso config path [flags]
+
+Flags:
+  -h, --help   help for path
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+		}),
+		command({
+			name: 'set',
+			description: 'Set a configuration value',
+			options: globalFlags,
+			handler: universalHandler('config set'),
+			help: `Set a configuration value
+
+Usage:
+  turso config set [command]
+
+Available Commands:
+  autoupdate  Configure autoupdate behavior
+  token       Configure the token used by turso
+
+Flags:
+  -h, --help   help for set
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file
+
+Use "turso config set [command] --help" for more information about a command.`,
+			subcommands: [
+				command({
+					name: 'autoupdate',
+					description: 'Configure autoupdate behavior',
+					options: {
+						...globalFlags,
+						value: positional('value').enum('on', 'off').required(),
+					},
+					handler: universalHandler('config set autoupdate'),
+					help: `Configure autoupdate behavior
+
+Usage:
+  turso config set autoupdate <on|off> [flags]
+
+Flags:
+  -h, --help   help for autoupdate
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+				}),
+				command({
+					name: 'token',
+					description: 'Configure the token used by turso',
+					options: {
+						...globalFlags,
+						token: positional('jwt').required(),
+					},
+					handler: universalHandler('config set token'),
+					help: `Configure the token used by turso
+
+Usage:
+  turso config set token <jwt> [flags]
+
+Flags:
+  -h, --help   help for token
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+				}),
+			],
 		}),
 	],
 }));

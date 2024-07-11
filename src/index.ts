@@ -120,6 +120,28 @@ Global Flags:
 				}),
 			],
 		}),
+		command({
+			name: 'login',
+			description: 'Login to the platform.',
+			options: {
+				...globFlags,
+				headless: boolean().desc(
+					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
+				),
+			},
+			handler: universalHandler('auth login'),
+			help: `Login to the platform.
+
+Usage:
+  turso auth login [flags]
+
+Flags:
+      --headless   Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.
+  -h, --help       help for login
+
+Global Flags:
+  -c, --config-path string   Path to the directory with config file`,
+		}),
 	],
 }));
 
@@ -157,6 +179,8 @@ Use "turso [command] --help" for more information about a command.
 	},
 	version: 'turso version v0.96.0-brocli-showcase',
 	hook: (event) => {
+		if (event !== 'pre') return;
+
 		console.log('Turso CLI\n');
 	},
 });

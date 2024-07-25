@@ -188,9 +188,13 @@ run(commands, {
 				console.log(data);
 			}
 
+			console.log('Flags:');
 			if (options.length) {
-				console.log('Flags:');
 			}
+
+			console.log('\n', 'Global flags:');
+			console.log(`  -h, --help                 help${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -v, --version              version${cliName ? ` for ${cliName}` : ''}`);
 
 			return true;
 		}
@@ -213,6 +217,10 @@ run(commands, {
 					.join('\n');
 				console.log(data);
 			}
+
+			console.log('\n', 'Flags:');
+			console.log(`  -h, --help                 help${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -v, --version              version${cliName ? ` for ${cliName}` : ''}`);
 
 			return true;
 		}

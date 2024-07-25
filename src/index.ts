@@ -1,4 +1,4 @@
-import { boolean, Command, command, positional, run, string } from '@drizzle-team/brocli';
+import { boolean, BuilderConfig, Command, command, positional, run, string } from '@drizzle-team/brocli';
 
 const commands: Command[] = [];
 
@@ -92,6 +92,56 @@ To authenticate to your databases, use turso db tokens create`,
 	],
 }));
 
+const getOptionTypeText = (option: BuilderConfig) => {
+	let result = '';
+
+	switch (option.type) {
+		case 'boolean':
+			result = '';
+			break;
+		case 'number': {
+			if ((option.minVal ?? option.maxVal) !== undefined) {
+				let text = '';
+
+				if (option.isInt) text = text + `integer `;
+
+				if (option.minVal !== undefined) text = text + `[${option.minVal};`;
+				else text = text + `(∞;`;
+
+				if (option.maxVal !== undefined) text = text + `${option.maxVal}]`;
+				else text = text + `∞)`;
+
+				result = text;
+				break;
+			}
+
+			if (option.isInt) {
+				result = 'integer';
+				break;
+			}
+
+			result = 'number';
+			break;
+		}
+		case 'string': {
+			if (option.enumVals) {
+				result = '[' + option.enumVals.join('|') + ']';
+				break;
+			}
+
+			result = 'string';
+			break;
+		}
+		case 'positional': {
+			result = `<${option.enumVals ? option.enumVals.join('|') : option.name}>`;
+			break;
+		}
+	}
+
+	if (option.isRequired) result = '!' + result;
+	return result;
+};
+
 commands.push(command({
 	name: 'config',
 	desc: 'Manage your CLI configuration',
@@ -156,10 +206,12 @@ run(commands, {
 			console.log('Turso CLI');
 
 			if (desc !== undefined) {
-				console.log('\n', desc);
+				console.log(`\n${desc}`);
 			}
 
-			const opts = Object.values(command.options ?? {} as Exclude<typeof command.options, undefined>);
+			const opts = Object.values(command.options ?? {} as Exclude<typeof command.options, undefined>).filter((opt) =>
+				!opt.config.isHidden
+			);
 			const positionals = opts.filter((opt) => opt.config.type === 'positional');
 			const options = opts.filter((opt) => opt.config.type !== 'positional');
 
@@ -169,7 +221,7 @@ run(commands, {
 					`  ${cliName ? cliName + ' ' : ''}${command.name}${
 						positionals.length
 							? ' '
-								+ positionals.map(({ config: p }) => `<${p.enumVals ? p.enumVals.join('|') : p.name}>`).join(' ')
+								+ positionals.map(({ config: p }) => getOptionTypeText(p)).join(' ')
 							: ''
 					}`,
 				);
@@ -188,8 +240,32 @@ run(commands, {
 				console.log(data);
 			}
 
-			console.log('Flags:');
 			if (options.length) {
+				const aliasLength = options.reduce((p, e) => {
+					const currentLength = e.config.aliases.reduce((pa, a) => pa + a.length, 0)
+						+ ((e.config.aliases.length - 1) * 2) + 1; // Names + coupling symbols ", " + ending coma
+
+					return currentLength > p ? currentLength : p;
+				}, 0);
+				const paddedAliasLength = aliasLength > 0 ? aliasLength + 1 : 0;
+				const nameLength = options.reduce((p, e) => e.config.name.length > p ? e.config.name.length : p, 0) + 1;
+				const typeLength = options.reduce((p, e) => {
+					const len = getOptionTypeText(e.config).length;
+
+					return len > p ? len : p;
+				}, 0);
+				const paddedTypeLength = typeLength > 0 ? typeLength + 2 : typeLength;
+
+				const data = options.map(({ config: opt }) =>
+					`  ${`${opt.aliases.length ? opt.aliases.join(', ') + ',' : ''}`.padEnd(paddedAliasLength)}${
+						opt.name.padEnd(nameLength)
+					}${getOptionTypeText(opt).padEnd(paddedTypeLength)}${
+						opt.description ? opt.description.split('\n').shift() : ''
+					}`
+				).join('\n');
+
+				console.log('\nFlags:');
+				console.log(data);
 			}
 
 			console.log('\n', 'Global flags:');
@@ -201,8 +277,8 @@ run(commands, {
 
 		if (event.type === 'globalHelp') {
 			const cliName = event.cliName;
-			console.log('Turso CLI\n');
-			console.log('Usage:');
+			console.log('Turso CLI');
+			console.log('\nUsage:');
 			console.log(`  ${cliName ? cliName + ' ' : ''}[command]`);
 
 			if (event.commands) {

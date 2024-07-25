@@ -6,7 +6,7 @@
 	"description": "Mock Turso CLI built with BroCLI",
 	"homepage": "https://github.com/drizzle-team/brocli",
 	"scripts": {
-		"test": "tsx src/index.ts",
+		"turso": "tsx src/index.ts",
 		"lint": "dprint check --list-different"
 	},
 	"devDependencies": {
@@ -14,6 +14,6 @@
 		"typescript": "latest"
 	},
 	"dependencies": {
-		"@drizzle-team/brocli": "^0.8.2"
+		"@drizzle-team/brocli": "^0.9.1"
 	}
 }

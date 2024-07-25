@@ -193,8 +193,8 @@ run(commands, {
 			}
 
 			console.log('\n', 'Global flags:');
-			console.log(`  -h, --help                 help${cliName ? ` for ${cliName}` : ''}`);
-			console.log(`  -v, --version              version${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -h, --help      help${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
 
 			return true;
 		}
@@ -219,8 +219,8 @@ run(commands, {
 			}
 
 			console.log('\n', 'Flags:');
-			console.log(`  -h, --help                 help${cliName ? ` for ${cliName}` : ''}`);
-			console.log(`  -v, --version              version${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -h, --help      help${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
 
 			return true;
 		}

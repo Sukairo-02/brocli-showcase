@@ -11,6 +11,58 @@ const universalHandler = (name: string) => (opts: any) => {
 	console.log(opts);
 };
 
+const getOptionTypeText = (option: BuilderConfig) => {
+	let result = '';
+
+	switch (option.type) {
+		case 'boolean':
+			result = '';
+			break;
+		case 'number': {
+			if ((option.minVal ?? option.maxVal) !== undefined) {
+				let text = '';
+
+				if (option.isInt) text = text + `integer `;
+
+				if (option.minVal !== undefined) text = text + `[${option.minVal};`;
+				else text = text + `(∞;`;
+
+				if (option.maxVal !== undefined) text = text + `${option.maxVal}]`;
+				else text = text + `∞)`;
+
+				result = text;
+				break;
+			}
+
+			if (option.isInt) {
+				result = 'integer';
+				break;
+			}
+
+			result = 'number';
+			break;
+		}
+		case 'string': {
+			if (option.enumVals) {
+				result = '[' + option.enumVals.join('|') + ']';
+				break;
+			}
+
+			result = 'string';
+			break;
+		}
+		case 'positional': {
+			result = `${option.isRequired ? '<' : '['}${option.enumVals ? option.enumVals.join('|') : option.name}${
+				option.isRequired ? '>' : ']'
+			}`;
+			break;
+		}
+	}
+
+	if (option.isRequired && option.type !== 'positional') result = '!' + result.length ? ' ' : '' + result;
+	return result;
+};
+
 commands.push(command({
 	name: 'auth',
 	desc: 'Authenticate with Turso',
@@ -34,7 +86,7 @@ They can be used to implement automations with the turso CLI or the platform API
 					desc: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Mint an API token.',
-					options: { ...globalFlags, apiTokenName: positional('api-token-name') },
+					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
 					handler: universalHandler('auth api-tokens mint'),
 				}),
 				command({
@@ -42,7 +94,7 @@ They can be used to implement automations with the turso CLI or the platform API
 					desc: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Revoke an API tokens.',
-					options: { ...globalFlags, apiTokenName: positional('api-token-name') },
+					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
 					handler: universalHandler('auth api-tokens revoke'),
 				}),
 			],
@@ -91,56 +143,6 @@ To authenticate to your databases, use turso db tokens create`,
 		}),
 	],
 }));
-
-const getOptionTypeText = (option: BuilderConfig) => {
-	let result = '';
-
-	switch (option.type) {
-		case 'boolean':
-			result = '';
-			break;
-		case 'number': {
-			if ((option.minVal ?? option.maxVal) !== undefined) {
-				let text = '';
-
-				if (option.isInt) text = text + `integer `;
-
-				if (option.minVal !== undefined) text = text + `[${option.minVal};`;
-				else text = text + `(∞;`;
-
-				if (option.maxVal !== undefined) text = text + `${option.maxVal}]`;
-				else text = text + `∞)`;
-
-				result = text;
-				break;
-			}
-
-			if (option.isInt) {
-				result = 'integer';
-				break;
-			}
-
-			result = 'number';
-			break;
-		}
-		case 'string': {
-			if (option.enumVals) {
-				result = '[' + option.enumVals.join('|') + ']';
-				break;
-			}
-
-			result = 'string';
-			break;
-		}
-		case 'positional': {
-			result = `<${option.enumVals ? option.enumVals.join('|') : option.name}>`;
-			break;
-		}
-	}
-
-	if (option.isRequired) result = '!' + result;
-	return result;
-};
 
 commands.push(command({
 	name: 'config',
@@ -259,6 +261,19 @@ commands.push(command({
 				enableExt: boolean('enable-extensions').desc(
 					`Enables experimental support for SQLite extensions.\nIf you would like to see some extension included, run turso account feedback.\nWarning: extensions support is experimental and subject to change`,
 				),
+				fromCSV: string('from-csv').desc('create the database from a csv file'),
+				fromDB: string('from-db').desc('create the database from a local SQLite dump'),
+				fromLink: string('from-db-url').desc('create the database from a remote SQLite dump'),
+				fromFile: string('from-file').desc('create the database from a local SQLite3-compatible file'),
+				group: string().desc('create the database in the specified group'),
+				location: string().desc('Location ID. If no ID is specified, closest location to you is used by default.'),
+				schema: string().desc('Schema to use for the database'),
+				timestamp: string().desc(
+					`Set a point in time in the past to copy data from the selected database. Must be used with the 'from-db' flag. Must be in RFC3339 format like '2023-09-29T10:16:13-03:00'`,
+				),
+				type: string().desc('Type of the database to create. Possible values: regular, schema.').default('regular'),
+				wait: boolean().alias('w').desc('Wait for the database to be ready to receive requests.'),
+				dbName: positional('database-name'),
 			},
 			handler: universalHandler('db create'),
 		}),
@@ -283,7 +298,8 @@ run(commands, {
 			const opts = Object.values(command.options ?? {} as Exclude<typeof command.options, undefined>).filter((opt) =>
 				!opt.config.isHidden
 			);
-			const positionals = opts.filter((opt) => opt.config.type === 'positional');
+			const positionals = opts.filter((opt) => opt.config.type === 'positional' && opt.config.isRequired);
+			const optPositionals = opts.filter((opt) => opt.config.type === 'positional' && !opt.config.isRequired);
 			const options = opts.filter((opt) => opt.config.type !== 'positional');
 
 			console.log('\nUsage:');
@@ -294,6 +310,8 @@ run(commands, {
 							? ' '
 								+ positionals.map(({ config: p }) => getOptionTypeText(p)).join(' ')
 							: ''
+					} [flags]${
+						optPositionals.length ? ' ' + optPositionals.map(({ config: p }) => getOptionTypeText(p)).join(' ') : ''
 					}`,
 				);
 			} else console.log(`  ${cliName ? cliName + ' ' : ''}${command.name} [command]`);
@@ -355,8 +373,9 @@ run(commands, {
 			}
 
 			console.log('\n', 'Global flags:');
-			console.log(`  -h, --help      help${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -h, --help      help for ${command.name}`);
 			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
+			console.log('\n');
 
 			return true;
 		}
@@ -383,6 +402,7 @@ run(commands, {
 			console.log('\nFlags:');
 			console.log(`  -h, --help      help${cliName ? ` for ${cliName}` : ''}`);
 			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
+			console.log('\n');
 
 			return true;
 		}

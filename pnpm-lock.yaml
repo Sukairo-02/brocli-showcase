@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@drizzle-team/brocli':
-        specifier: ^0.9.1
-        version: 0.9.1
+        specifier: ^0.9.2
+        version: 0.9.2
     devDependencies:
       tsx:
         specifier: ^4.16.2
@@ -21,8 +21,8 @@ importers:
 
 packages:
 
-  '@drizzle-team/brocli@0.9.1':
-    resolution: {integrity: sha512-oDaGaJBWPlhYTaEb5/qaRUzGmX0mcJCl2uOLXm+RYBlqK/x3uRZBngmhqEl8rN/IlI4chaR6NNRD3GrWMsDHVg==}
+  '@drizzle-team/brocli@0.9.2':
+    resolution: {integrity: sha512-yOrIWbgYMTcXuG+4sTn5OX1UtNVmtHqIqlTyp7OpYOQgIIOjLUdiG8GBVmMOwV6qelcojDB/9MHOL0POIRLMug==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -190,7 +190,7 @@ packages:
 
 snapshots:
 
-  '@drizzle-team/brocli@0.9.1': {}
+  '@drizzle-team/brocli@0.9.2': {}
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true

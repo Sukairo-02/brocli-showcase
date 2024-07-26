@@ -34,7 +34,7 @@ They can be used to implement automations with the turso CLI or the platform API
 					desc: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Mint an API token.',
-					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
+					options: { ...globalFlags, apiTokenName: positional('api-token-name') },
 					handler: universalHandler('auth api-tokens mint'),
 				}),
 				command({
@@ -42,7 +42,7 @@ They can be used to implement automations with the turso CLI or the platform API
 					desc: `API tokens are revocable non-expiring tokens that authenticate holders as the user who minted them.
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Revoke an API tokens.',
-					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
+					options: { ...globalFlags, apiTokenName: positional('api-token-name') },
 					handler: universalHandler('auth api-tokens revoke'),
 				}),
 			],
@@ -194,6 +194,77 @@ commands.push(command({
 	],
 }));
 
+commands.push(command({
+	name: 'contact',
+	desc: 'Reach out to the makers of Turso for help or feedback',
+	options: globalFlags,
+	subcommands: [
+		command({
+			name: 'bookmeeting',
+			desc: 'Book a meeting with the Turso team.',
+			handler: universalHandler('contact bookmeeting'),
+		}),
+		command({
+			name: 'feedback',
+			desc: `Tell us how can we help you, how we can improve, or what you'd like to see next.`,
+			handler: universalHandler('contact feedback'),
+		}),
+	],
+}));
+
+commands.push(command({
+	name: 'db',
+	desc: 'Manage databases',
+	options: globalFlags,
+	subcommands: [
+		command({
+			name: 'config',
+			desc: 'Manage db config',
+			options: globalFlags,
+			subcommands: [
+				command({
+					name: 'attach',
+					desc: 'Manage attach config of a database',
+					options: globalFlags,
+					subcommands: [
+						command({
+							name: 'allow',
+							desc: 'Allows this database to be attached by other databases',
+							options: globalFlags,
+							handler: universalHandler('db config attach allow'),
+						}),
+						command({
+							name: 'disallow',
+							desc: 'Disallows this database to be attached by other databases',
+							options: globalFlags,
+							handler: universalHandler('db config attach disallow'),
+						}),
+						command({
+							name: 'show',
+							desc: 'Shows the attach status of a database',
+							options: { ...globalFlags, dbName: positional('database-name').required() },
+							handler: universalHandler('db config attach show'),
+						}),
+					],
+				}),
+			],
+		}),
+		command({
+			name: 'create',
+			desc: 'Create a database',
+			options: {
+				...globalFlags,
+				csvSeparator: string('csv-separator').desc('CSV separator character. Must be a single character.').default(','),
+				csvTableName: string('csv-table-name').desc('name of the table in the csv file'),
+				enableExt: boolean('enable-extensions').desc(
+					`Enables experimental support for SQLite extensions.\nIf you would like to see some extension included, run turso account feedback.\nWarning: extensions support is experimental and subject to change`,
+				),
+			},
+			handler: universalHandler('db create'),
+		}),
+	],
+}));
+
 run(commands, {
 	cliName: 'turso',
 	omitKeysOfUndefinedOptions: true,
@@ -229,7 +300,7 @@ run(commands, {
 
 			if (command.subcommands) {
 				console.log('\nAvailable Commands:');
-				const padding = 2;
+				const padding = 3;
 				const maxLength = command.subcommands.reduce((p, e) => e.name.length > p ? e.name.length : p, 0);
 				const paddedLength = maxLength + padding;
 
@@ -248,19 +319,34 @@ run(commands, {
 					return currentLength > p ? currentLength : p;
 				}, 0);
 				const paddedAliasLength = aliasLength > 0 ? aliasLength + 1 : 0;
-				const nameLength = options.reduce((p, e) => e.config.name.length > p ? e.config.name.length : p, 0) + 1;
-				const typeLength = options.reduce((p, e) => {
-					const len = getOptionTypeText(e.config).length;
+				const nameLength = options.reduce((p, e) => {
+					const typeLen = getOptionTypeText(e.config).length;
+					const length = typeLen > 0 ? e.config.name.length + 1 + typeLen : e.config.name.length;
 
-					return len > p ? len : p;
-				}, 0);
-				const paddedTypeLength = typeLength > 0 ? typeLength + 2 : typeLength;
+					return length > p ? length : p;
+				}, 0) + 3;
+
+				const preDescPad = paddedAliasLength + nameLength + 2;
 
 				const data = options.map(({ config: opt }) =>
 					`  ${`${opt.aliases.length ? opt.aliases.join(', ') + ',' : ''}`.padEnd(paddedAliasLength)}${
-						opt.name.padEnd(nameLength)
-					}${getOptionTypeText(opt).padEnd(paddedTypeLength)}${
-						opt.description ? opt.description.split('\n').shift() : ''
+						`${opt.name}${
+							(() => {
+								const typeText = getOptionTypeText(opt);
+								return typeText.length ? ' ' + typeText : '';
+							})()
+						}`.padEnd(nameLength)
+					}${
+						(() => {
+							if (!opt.description?.length) return '';
+							const split = opt.description.split('\n');
+							const first = split.shift()!;
+							const def = opt.default !== undefined ? ` (default: ${JSON.stringify(opt.default)})` : '';
+
+							const final = [first, ...split.map((s) => ''.padEnd(preDescPad) + s)].join('\n') + def;
+
+							return final;
+						})()
 					}`
 				).join('\n');
 
@@ -283,7 +369,7 @@ run(commands, {
 
 			if (event.commands) {
 				console.log('\nAvailable Commands:');
-				const padding = 2;
+				const padding = 3;
 				const maxLength = event.commands.reduce((p, e) => e.name.length > p ? e.name.length : p, 0);
 				const paddedLength = maxLength + padding;
 
@@ -294,7 +380,7 @@ run(commands, {
 				console.log(data);
 			}
 
-			console.log('\n', 'Flags:');
+			console.log('\nFlags:');
 			console.log(`  -h, --help      help${cliName ? ` for ${cliName}` : ''}`);
 			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
 

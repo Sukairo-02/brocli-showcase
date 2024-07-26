@@ -277,6 +277,140 @@ commands.push(command({
 			},
 			handler: universalHandler('db create'),
 		}),
+		command({
+			name: 'destroy',
+			desc: 'Destroy a database.',
+			options: {
+				...globalFlags,
+				dbName: positional('database-name').required(),
+				yes: boolean().alias('y').desc('Confirms the destruction of all locations of the database.'),
+			},
+			handler: universalHandler('db destroy'),
+		}),
+		command({
+			name: 'inspect',
+			desc: 'Inspect database.',
+			options: {
+				...globalFlags,
+				queries: boolean().desc('Display database queries statistics'),
+				verbose: boolean().desc('Show detailed information'),
+				dbName: positional('database-name').required(),
+			},
+			handler: universalHandler('db inspect'),
+		}),
+		command({
+			name: 'list',
+			desc: 'List databases.',
+			options: globalFlags,
+			handler: universalHandler('db list'),
+		}),
+		command({
+			name: 'locations',
+			desc: 'List available database locations.',
+			options: {
+				...globalFlags,
+				latencies: boolean('show-latencies').alias('l').desc(
+					`Display latencies from your current location to each of Turso's locations`,
+				),
+			},
+			handler: universalHandler('db locations'),
+		}),
+		command({
+			name: 'replicate',
+			desc: 'Replicate a database.',
+			options: {
+				...globalFlags,
+				wait: string().alias('w').desc('Wait for the replica to be ready to receive requests.'),
+				dbName: positional('database-name').required(),
+				locCode: positional('location-code').required(),
+			},
+			handler: universalHandler('db replicate'),
+		}),
+		command({
+			name: 'shell',
+			desc: `Start a SQL shell.\
+			When database-name is provided, the shell will connect the closest replica of the specified database.\
+			When the --instance flag is provided with a specific instance name, the shell will connect to that instance directly.`,
+			shortDesc: 'Start a SQL shell.',
+			options: {
+				...globalFlags,
+				attach: string().desc('list of database names with attach claim to be added to the token'),
+				instance: string().desc('Connect to the database at the specified instance.'),
+				location: string().desc('Connect to the database at the specified location.'),
+				proxy: string().desc('Proxy to use for the connection.'),
+				urlOrName: positional('database-name | replica-url').required(),
+				sql: positional(),
+			},
+			handler: universalHandler('db shell'),
+		}),
+		command({
+			name: 'show',
+			desc: 'Show information from a database.',
+			options: {
+				...globalFlags,
+				http: string('http-url').desc('Show HTTP URL for the database HTTP API.'),
+				instance: string('instance-url').desc(
+					'Show URL for the HTTP API of a selected instance of a database. Instance is selected by instance name.',
+				),
+				instances: string('instance-urls').desc('Show URL for the HTTP API of all existing instances'),
+				url: string().desc('Show URL for the database HTTP API.'),
+				dbName: positional('database-name').required(),
+			},
+			handler: universalHandler('db show'),
+		}),
+		command({
+			name: 'tokens',
+			desc: 'Manage db tokens',
+			subcommands: [
+				command({
+					name: 'create',
+					desc: 'Creates a bearer token to authenticate requests to the database',
+					options: {
+						...globalFlags,
+						attach: string().desc('list of database names with attach claim to be added to the token'),
+						expiration: string().alias('e').desc(
+							'Token expiration. Possible values are never (default) or expiration time in days (e.g. 7d).',
+						).default('never'),
+						group: boolean().desc('create a token that is valid for all databases in the group'),
+						readonly: boolean('read-only').alias('r').desc('Token with read-only access'),
+						dbName: positional('database-name').required(),
+					},
+					handler: universalHandler('db tokens create'),
+				}),
+				command({
+					name: 'invalidate',
+					desc: 'Rotates the keys used to create and verify database tokens making existing tokens invalid',
+					options: {
+						...globalFlags,
+						yes: boolean().alias('y').desc('Confirms the invalidation of all existing db tokens.'),
+						dbName: positional('database-name').required(),
+					},
+					handler: universalHandler('db tokens invalidate'),
+				}),
+			],
+		}),
+		command({
+			name: 'update',
+			desc: 'Updates the database to the latest turso version',
+			options: {
+				...globalFlags,
+				group: string().desc(
+					'Update database to use groups. Only effective if the database is not already using groups.',
+				),
+				yes: boolean().alias('y').desc('Confirms the update of the database.'),
+				dbName: positional('database-name').required(),
+			},
+			handler: universalHandler('db update'),
+		}),
+		command({
+			name: 'wakeup',
+			desc: 'Wake up a database',
+			options: {
+				...globalFlags,
+				dbName: positional('database-name').required(),
+			},
+			handler: universalHandler('db update'),
+		}),
 	],
 }));
 
@@ -288,8 +422,6 @@ run(commands, {
 			const command = event.command;
 			const cliName = event.cliName;
 			const desc = command.desc ?? command.shortDesc;
-
-			console.log('Turso CLI');
 
 			if (desc !== undefined) {
 				console.log(`\n${desc}`);
@@ -315,6 +447,11 @@ run(commands, {
 					}`,
 				);
 			} else console.log(`  ${cliName ? cliName + ' ' : ''}${command.name} [command]`);
+
+			if (command.aliases) {
+				console.log(`\nAliases:`);
+				console.log(`  ${command.aliases.join(', ')}`);
+			}
 
 			if (command.subcommands) {
 				console.log('\nAvailable Commands:');

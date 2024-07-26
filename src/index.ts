@@ -1,4 +1,5 @@
 import { boolean, BuilderConfig, Command, command, positional, run, string } from '@drizzle-team/brocli';
+import { getCommandNameWithParents } from '@drizzle-team/brocli';
 
 const commands: Command[] = [];
 
@@ -6,8 +7,8 @@ const globalFlags = {
 	config: string().alias('c').desc('Path to the directory with config file'),
 };
 
-const universalHandler = (name: string) => (opts: any) => {
-	console.log(`turso ${name}:`);
+const universalHandler = (opts: any) => {
+	console.log('Command received options:');
 	console.log(opts);
 };
 
@@ -79,7 +80,7 @@ commands.push(command({
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'List API tokens.',
 					options: globalFlags,
-					handler: universalHandler('auth api-tokens list'),
+					handler: universalHandler,
 				}),
 				command({
 					name: 'mint',
@@ -87,7 +88,7 @@ They can be used to implement automations with the turso CLI or the platform API
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Mint an API token.',
 					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
-					handler: universalHandler('auth api-tokens mint'),
+					handler: universalHandler,
 				}),
 				command({
 					name: 'revoke',
@@ -95,7 +96,7 @@ They can be used to implement automations with the turso CLI or the platform API
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Revoke an API tokens.',
 					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
-					handler: universalHandler('auth api-tokens revoke'),
+					handler: universalHandler,
 				}),
 			],
 		}),
@@ -108,13 +109,13 @@ They can be used to implement automations with the turso CLI or the platform API
 					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
 				),
 			},
-			handler: universalHandler('auth login'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'logout',
 			desc: 'Log out currently logged in user.',
 			options: globalFlags,
-			handler: universalHandler('auth logout'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'signup',
@@ -125,7 +126,7 @@ They can be used to implement automations with the turso CLI or the platform API
 					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
 				),
 			},
-			handler: universalHandler('auth signup'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'token',
@@ -133,13 +134,13 @@ They can be used to implement automations with the turso CLI or the platform API
 To authenticate to your databases, use turso db tokens create`,
 			shortDesc: 'Shows the token used to authenticate you to Turso platform API.',
 			options: globalFlags,
-			handler: universalHandler('auth token'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'whoami',
 			desc: `Show the currently logged in user.`,
 			options: globalFlags,
-			handler: universalHandler('auth whoami'),
+			handler: universalHandler,
 		}),
 	],
 }));
@@ -158,7 +159,7 @@ commands.push(command({
 					name: 'clear',
 					desc: 'Clear your CLI local cache',
 					options: globalFlags,
-					handler: universalHandler('config cache clear'),
+					handler: universalHandler,
 				}),
 			],
 		}),
@@ -166,7 +167,7 @@ commands.push(command({
 			name: 'path',
 			desc: 'Get the path to the CLI configuration file',
 			options: globalFlags,
-			handler: universalHandler('config path'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'set',
@@ -180,7 +181,7 @@ commands.push(command({
 						...globalFlags,
 						value: positional('value').enum('on', 'off').required(),
 					},
-					handler: universalHandler('config set autoupdate'),
+					handler: universalHandler,
 				}),
 				command({
 					name: 'token',
@@ -189,7 +190,7 @@ commands.push(command({
 						...globalFlags,
 						token: positional('jwt').required(),
 					},
-					handler: universalHandler('config set token'),
+					handler: universalHandler,
 				}),
 			],
 		}),
@@ -204,12 +205,12 @@ commands.push(command({
 		command({
 			name: 'bookmeeting',
 			desc: 'Book a meeting with the Turso team.',
-			handler: universalHandler('contact bookmeeting'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'feedback',
 			desc: `Tell us how can we help you, how we can improve, or what you'd like to see next.`,
-			handler: universalHandler('contact feedback'),
+			handler: universalHandler,
 		}),
 	],
 }));
@@ -233,19 +234,19 @@ commands.push(command({
 							name: 'allow',
 							desc: 'Allows this database to be attached by other databases',
 							options: globalFlags,
-							handler: universalHandler('db config attach allow'),
+							handler: universalHandler,
 						}),
 						command({
 							name: 'disallow',
 							desc: 'Disallows this database to be attached by other databases',
 							options: globalFlags,
-							handler: universalHandler('db config attach disallow'),
+							handler: universalHandler,
 						}),
 						command({
 							name: 'show',
 							desc: 'Shows the attach status of a database',
 							options: { ...globalFlags, dbName: positional('database-name').required() },
-							handler: universalHandler('db config attach show'),
+							handler: universalHandler,
 						}),
 					],
 				}),
@@ -275,7 +276,7 @@ commands.push(command({
 				wait: boolean().alias('w').desc('Wait for the database to be ready to receive requests.'),
 				dbName: positional('database-name'),
 			},
-			handler: universalHandler('db create'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'destroy',
@@ -285,7 +286,7 @@ commands.push(command({
 				dbName: positional('database-name').required(),
 				yes: boolean().alias('y').desc('Confirms the destruction of all locations of the database.'),
 			},
-			handler: universalHandler('db destroy'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'inspect',
@@ -296,13 +297,13 @@ commands.push(command({
 				verbose: boolean().desc('Show detailed information'),
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler('db inspect'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'list',
 			desc: 'List databases.',
 			options: globalFlags,
-			handler: universalHandler('db list'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'locations',
@@ -313,7 +314,7 @@ commands.push(command({
 					`Display latencies from your current location to each of Turso's locations`,
 				),
 			},
-			handler: universalHandler('db locations'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'replicate',
@@ -324,7 +325,7 @@ commands.push(command({
 				dbName: positional('database-name').required(),
 				locCode: positional('location-code').required(),
 			},
-			handler: universalHandler('db replicate'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'shell',
@@ -341,7 +342,7 @@ commands.push(command({
 				urlOrName: positional('database-name | replica-url').required(),
 				sql: positional(),
 			},
-			handler: universalHandler('db shell'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'show',
@@ -356,7 +357,7 @@ commands.push(command({
 				url: string().desc('Show URL for the database HTTP API.'),
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler('db show'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'tokens',
@@ -375,7 +376,7 @@ commands.push(command({
 						readonly: boolean('read-only').alias('r').desc('Token with read-only access'),
 						dbName: positional('database-name').required(),
 					},
-					handler: universalHandler('db tokens create'),
+					handler: universalHandler,
 				}),
 				command({
 					name: 'invalidate',
@@ -385,7 +386,7 @@ commands.push(command({
 						yes: boolean().alias('y').desc('Confirms the invalidation of all existing db tokens.'),
 						dbName: positional('database-name').required(),
 					},
-					handler: universalHandler('db tokens invalidate'),
+					handler: universalHandler,
 				}),
 			],
 		}),
@@ -400,7 +401,7 @@ commands.push(command({
 				yes: boolean().alias('y').desc('Confirms the update of the database.'),
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler('db update'),
+			handler: universalHandler,
 		}),
 		command({
 			name: 'wakeup',
@@ -409,7 +410,7 @@ commands.push(command({
 				...globalFlags,
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler('db update'),
+			handler: universalHandler,
 		}),
 	],
 }));
@@ -547,7 +548,12 @@ run(commands, {
 		return false;
 	},
 	version: 'turso version v0.96.0-brocli-showcase',
-	hook: (event) => {
-		if (event === 'before') console.log('Turso CLI\n');
+	hook: (event, command) => {
+		if (event === 'before') {
+			console.log('Turso CLI\n');
+			console.log(`Running command: turso ${getCommandNameWithParents(command)}\n`);
+		}
+
+		if (event === 'after') console.log('\nTask completed succesfully!\n');
 	},
 });

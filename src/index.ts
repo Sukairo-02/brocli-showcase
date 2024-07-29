@@ -510,7 +510,7 @@ run(commands, {
 				console.log(data);
 			}
 
-			console.log('\n', 'Global flags:');
+			console.log('\nGlobal flags:');
 			console.log(`  -h, --help      help for ${command.name}`);
 			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
 			console.log('\n');

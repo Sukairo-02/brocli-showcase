@@ -421,6 +421,7 @@ run(commands, {
 	theme: (event) => {
 		if (event.type === 'commandHelp') {
 			const command = event.command;
+			const commandName = getCommandNameWithParents(command);
 			const cliName = event.cliName;
 			const desc = command.desc ?? command.shortDesc;
 
@@ -438,7 +439,7 @@ run(commands, {
 			console.log('\nUsage:');
 			if (command.handler) {
 				console.log(
-					`  ${cliName ? cliName + ' ' : ''}${command.name}${
+					`  ${cliName ? cliName + ' ' : ''}${commandName}${
 						positionals.length
 							? ' '
 								+ positionals.map(({ config: p }) => getOptionTypeText(p)).join(' ')
@@ -447,7 +448,7 @@ run(commands, {
 						optPositionals.length ? ' ' + optPositionals.map(({ config: p }) => getOptionTypeText(p)).join(' ') : ''
 					}`,
 				);
-			} else console.log(`  ${cliName ? cliName + ' ' : ''}${command.name} [command]`);
+			} else console.log(`  ${cliName ? cliName + ' ' : ''}${commandName} [command]`);
 
 			if (command.aliases) {
 				console.log(`\nAliases:`);
@@ -511,7 +512,7 @@ run(commands, {
 			}
 
 			console.log('\nGlobal flags:');
-			console.log(`  -h, --help      help for ${command.name}`);
+			console.log(`  -h, --help      help for ${commandName}`);
 			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
 			console.log('\n');
 

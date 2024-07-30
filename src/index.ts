@@ -506,7 +506,12 @@ run(commands, {
 						}`.padEnd(nameLength)
 					}${
 						(() => {
-							if (!opt.description?.length) return '';
+							if (!opt.description?.length) {
+								return opt.default !== undefined
+									? `default: ${JSON.stringify(opt.default)}`
+									: '';
+							}
+
 							const split = opt.description.split('\n');
 							const first = split.shift()!;
 							const def = opt.default !== undefined ? ` (default: ${JSON.stringify(opt.default)})` : '';

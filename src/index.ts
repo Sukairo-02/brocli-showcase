@@ -1,4 +1,4 @@
-import { boolean, BuilderConfig, Command, command, positional, run, string } from '@drizzle-team/brocli';
+import { boolean, BuilderConfig, Command, command, number, positional, run, string } from '@drizzle-team/brocli';
 import { getCommandNameWithParents } from '@drizzle-team/brocli';
 
 const commands: Command[] = [];
@@ -7,7 +7,7 @@ const globalFlags = {
 	config: string().alias('c').desc('Path to the directory with config file'),
 };
 
-const universalHandler = (opts: any) => {
+const mockHandler = (opts: any) => {
 	console.log('Command received options:');
 	console.log(opts);
 };
@@ -82,7 +82,7 @@ They can be used to implement automations with the turso CLI or the platform API
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'List API tokens.',
 					options: globalFlags,
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 				command({
 					name: 'mint',
@@ -90,7 +90,7 @@ They can be used to implement automations with the turso CLI or the platform API
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Mint an API token.',
 					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 				command({
 					name: 'revoke',
@@ -98,7 +98,7 @@ They can be used to implement automations with the turso CLI or the platform API
 They can be used to implement automations with the turso CLI or the platform API.`,
 					shortDesc: 'Revoke an API tokens.',
 					options: { ...globalFlags, apiTokenName: positional('api-token-name').required() },
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 			],
 		}),
@@ -111,13 +111,13 @@ They can be used to implement automations with the turso CLI or the platform API
 					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
 				),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'logout',
 			desc: 'Log out currently logged in user.',
 			options: globalFlags,
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'signup',
@@ -128,7 +128,7 @@ They can be used to implement automations with the turso CLI or the platform API
 					`Give users a link to start the process by themselves. Useful when the CLI can't interact with a web browser.`,
 				),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'token',
@@ -136,13 +136,13 @@ They can be used to implement automations with the turso CLI or the platform API
 To authenticate to your databases, use turso db tokens create`,
 			shortDesc: 'Shows the token used to authenticate you to Turso platform API.',
 			options: globalFlags,
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'whoami',
 			desc: `Show the currently logged in user.`,
 			options: globalFlags,
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 	],
 }));
@@ -161,7 +161,7 @@ commands.push(command({
 					name: 'clear',
 					desc: 'Clear your CLI local cache',
 					options: globalFlags,
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 			],
 		}),
@@ -169,7 +169,7 @@ commands.push(command({
 			name: 'path',
 			desc: 'Get the path to the CLI configuration file',
 			options: globalFlags,
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'set',
@@ -183,7 +183,7 @@ commands.push(command({
 						...globalFlags,
 						value: positional('value').enum('on', 'off').required(),
 					},
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 				command({
 					name: 'token',
@@ -192,7 +192,7 @@ commands.push(command({
 						...globalFlags,
 						token: positional('jwt').required(),
 					},
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 			],
 		}),
@@ -207,12 +207,12 @@ commands.push(command({
 		command({
 			name: 'bookmeeting',
 			desc: 'Book a meeting with the Turso team.',
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'feedback',
 			desc: `Tell us how can we help you, how we can improve, or what you'd like to see next.`,
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 	],
 }));
@@ -236,19 +236,19 @@ commands.push(command({
 							name: 'allow',
 							desc: 'Allows this database to be attached by other databases',
 							options: globalFlags,
-							handler: universalHandler,
+							handler: mockHandler,
 						}),
 						command({
 							name: 'disallow',
 							desc: 'Disallows this database to be attached by other databases',
 							options: globalFlags,
-							handler: universalHandler,
+							handler: mockHandler,
 						}),
 						command({
 							name: 'show',
 							desc: 'Shows the attach status of a database',
 							options: { ...globalFlags, dbName: positional('database-name').required() },
-							handler: universalHandler,
+							handler: mockHandler,
 						}),
 					],
 				}),
@@ -278,7 +278,7 @@ commands.push(command({
 				wait: boolean().alias('w').desc('Wait for the database to be ready to receive requests.'),
 				dbName: positional('database-name'),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'destroy',
@@ -288,7 +288,7 @@ commands.push(command({
 				dbName: positional('database-name').required(),
 				yes: boolean().alias('y').desc('Confirms the destruction of all locations of the database.'),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'inspect',
@@ -299,13 +299,13 @@ commands.push(command({
 				verbose: boolean().desc('Show detailed information'),
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'list',
 			desc: 'List databases.',
 			options: globalFlags,
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'locations',
@@ -316,7 +316,7 @@ commands.push(command({
 					`Display latencies from your current location to each of Turso's locations`,
 				),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'replicate',
@@ -327,7 +327,7 @@ commands.push(command({
 				dbName: positional('database-name').required(),
 				locCode: positional('location-code').required(),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'shell',
@@ -344,7 +344,7 @@ commands.push(command({
 				urlOrName: positional('database-name | replica-url').required(),
 				sql: positional(),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'show',
@@ -359,7 +359,7 @@ commands.push(command({
 				url: string().desc('Show URL for the database HTTP API.'),
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'tokens',
@@ -378,7 +378,7 @@ commands.push(command({
 						readonly: boolean('read-only').alias('r').desc('Token with read-only access'),
 						dbName: positional('database-name').required(),
 					},
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 				command({
 					name: 'invalidate',
@@ -388,7 +388,7 @@ commands.push(command({
 						yes: boolean().alias('y').desc('Confirms the invalidation of all existing db tokens.'),
 						dbName: positional('database-name').required(),
 					},
-					handler: universalHandler,
+					handler: mockHandler,
 				}),
 			],
 		}),
@@ -403,7 +403,7 @@ commands.push(command({
 				yes: boolean().alias('y').desc('Confirms the update of the database.'),
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'wakeup',
@@ -412,7 +412,175 @@ commands.push(command({
 				...globalFlags,
 				dbName: positional('database-name').required(),
 			},
-			handler: universalHandler,
+			handler: mockHandler,
+		}),
+	],
+}));
+
+commands.push(command({
+	name: 'dev',
+	desc: `starts a local development server for Turso.
+
+If you're using a libSQL client SDK that supports SQLite database files on the local filesystem, then you might not need this server at all.
+Instead, you can use a file: URL with the path to the file you want the SDK to read and write.`,
+	shortDesc: 'starts a local development server for Turso',
+	options: {
+		...globalFlags,
+		keyFile: string('auth-jwt-key-file').alias('a').desc(
+			'Path to a file with a JWT decoding key used to authenticate clients in the Hrana and HTTP APIs. The key is either a PKCS#8-encoded Ed25519 public key in PEM, or just plain bytes of the Ed25519 public key in URL-safe base64.',
+		),
+		dbFile: string('db-file').alias('f').desc('A file name to persist the data of this dev session'),
+		port: number().alias('p').int().default(8000).desc('the port to which bind the server'),
+		version: boolean('sqld-ver').alias('s').desc('sqld version'), // can't use --version\-v in brocli - reserved option
+	},
+	handler: mockHandler,
+}));
+
+commands.push(command({
+	name: 'group',
+	desc: 'Manage your database groups',
+	subcommands: [
+		command({
+			name: 'create',
+			desc: 'Create a database group',
+			options: {
+				...globalFlags,
+				location: string().desc('Create the group primary in the specified location'),
+				version: string('ver').enum('latest', 'canary', 'vector').desc('Version of the group'),
+				wait: boolean().alias('w').desc('Wait for group to be ready'),
+				groupName: positional('group-name').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'destroy',
+			desc: 'Destroy a database group',
+			options: {
+				...globalFlags,
+				groupName: positional('group-name').required(),
+				yes: boolean().alias('y').desc('Confirms the destruction of the group, with all its locations and databases.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'list',
+			desc: 'List databases groups',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'locations',
+			desc: 'Manage your database group locations',
+			subcommands: [
+				command({
+					name: 'add',
+					desc: 'Add locations to a database group',
+					options: {
+						...globalFlags,
+						groupName: positional('group-name').required(),
+						locationCode: positional('location-code'), // To be remade into <...location-code> - positional[] (?)
+						wait: boolean().alias('w').desc('Wait for group location to be ready'),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					name: 'list',
+					desc: 'List database group locations',
+					options: {
+						...globalFlags,
+						groupName: positional('group-name').required(),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					name: 'remove',
+					desc: 'Remove locations from a database group',
+					options: {
+						...globalFlags,
+						groupName: positional('group-name').required(),
+						locationCode: positional('location-code'), // To be remade into <...location-code> - positional[] (?)
+					},
+					handler: mockHandler,
+				}),
+			],
+		}),
+		command({
+			name: 'show',
+			desc: 'Show information about a group.',
+			options: {
+				...globalFlags,
+				groupName: positional('group-name').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'tokens',
+			desc: 'Manage group tokens',
+			subcommands: [
+				command({
+					name: 'create',
+					desc: 'Creates a bearer token to authenticate to group databases',
+					options: {
+						...globalFlags,
+						groupName: positional('group-name').required(),
+						attach: string().desc('list of database names with attach claim to be added to the token'), // Is supposed to be string[] (strings), TBD
+						expiration: string().alias('e').desc(
+							'Token expiration. Possible values are never (default) or expiration time in days (e.g. 7d).',
+						).default('never'),
+						readonly: boolean('read-only').alias('r').desc('Token with read-only access'),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					name: 'invalidate',
+					desc:
+						'Rotates the keys used to create and verify database tokens, invalidating all existing tokens invalid for the group.',
+					options: {
+						...globalFlags,
+						groupName: positional('group-name').required(),
+						yes: boolean().alias('y').desc(
+							'Confirms the update of the group',
+						),
+					},
+					handler: mockHandler,
+				}),
+			],
+		}),
+		command({
+			name: 'transfer',
+			desc: 'Transfers the group to the specified organization',
+			options: {
+				...globalFlags,
+				groupName: positional('group-name').required(),
+				orgName: positional('organization-name').required(),
+				yes: boolean().alias('y').desc(
+					'Confirms the update of the group',
+				),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'update',
+			desc: 'Updates the group',
+			options: {
+				...globalFlags,
+				groupName: positional('group-name').required(),
+				extensions: string().enum('all', 'none').desc('Extensions to enable'),
+				ver: string().enum('latest', 'canary', 'vector').desc('Version to update to'),
+				yes: boolean().alias('y').desc(
+					'Confirms the update of the group',
+				),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'wakeup',
+			desc: 'Wake up a database group',
+			options: {
+				...globalFlags,
+				groupName: positional('group-name').required(),
+			},
+			handler: mockHandler,
 		}),
 	],
 }));

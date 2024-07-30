@@ -459,9 +459,21 @@ run(commands, {
 				const padding = 3;
 				const maxLength = command.subcommands.reduce((p, e) => e.name.length > p ? e.name.length : p, 0);
 				const paddedLength = maxLength + padding;
+				const preDescPad = 2 + paddedLength;
 
 				const data = command.subcommands.map((s) =>
-					`  ${s.name.padEnd(paddedLength)}${(s.shortDesc ?? s.desc)?.split('\n').shift()!}`
+					`  ${s.name.padEnd(paddedLength)}${
+						(() => {
+							const description = s.shortDesc ?? s.desc;
+							if (!description?.length) return '';
+							const split = description.split('\n');
+							const first = split.shift()!;
+
+							const final = [first, ...split.map((s) => ''.padEnd(preDescPad) + s)].join('\n');
+
+							return final;
+						})()
+					}`
 				)
 					.join('\n');
 				console.log(data);

@@ -45,7 +45,7 @@ const getOptionTypeText = (option: BuilderConfig) => {
 		}
 		case 'string': {
 			if (option.enumVals) {
-				result = '[' + option.enumVals.join('|') + ']';
+				result = '[ ' + option.enumVals.join(' | ') + ' ]';
 				break;
 			}
 
@@ -71,7 +71,9 @@ commands.push(command({
 	subcommands: [
 		command({
 			name: 'api-tokens',
-			desc: 'Manage your API tokens',
+			desc: `API tokens are revocable non-expiring tokens that authenticate holders as the user who created them.
+They can be used to implement automations with the turso CLI or the platform API.`,
+			shortDesc: 'Manage your API tokens',
 			options: globalFlags,
 			subcommands: [
 				command({
@@ -432,8 +434,7 @@ run(commands, {
 			const opts = Object.values(command.options ?? {} as Exclude<typeof command.options, undefined>).filter((opt) =>
 				!opt.config.isHidden
 			);
-			const positionals = opts.filter((opt) => opt.config.type === 'positional' && opt.config.isRequired);
-			const optPositionals = opts.filter((opt) => opt.config.type === 'positional' && !opt.config.isRequired);
+			const positionals = opts.filter((opt) => opt.config.type === 'positional');
 			const options = opts.filter((opt) => opt.config.type !== 'positional');
 
 			console.log('\nUsage:');
@@ -444,9 +445,7 @@ run(commands, {
 							? ' '
 								+ positionals.map(({ config: p }) => getOptionTypeText(p)).join(' ')
 							: ''
-					} [flags]${
-						optPositionals.length ? ' ' + optPositionals.map(({ config: p }) => getOptionTypeText(p)).join(' ') : ''
-					}`,
+					} [flags]`,
 				);
 			} else console.log(`  ${cliName ? cliName + ' ' : ''}${commandName} [command]`);
 
@@ -514,7 +513,14 @@ run(commands, {
 			console.log('\nGlobal flags:');
 			console.log(`  -h, --help      help for ${commandName}`);
 			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
-			console.log('\n');
+
+			if (command.subcommands?.length) {
+				console.log(
+					`\nUse "${
+						cliName ? cliName + ' ' : ''
+					}${commandName} [command] --help" for more information about a command.\n`,
+				);
+			}
 
 			return true;
 		}

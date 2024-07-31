@@ -585,8 +585,140 @@ commands.push(command({
 	],
 }));
 
+commands.push(command({
+	name: 'org',
+	desc: 'Manage your organizations',
+	subcommands: [
+		command({
+			name: 'billing',
+			desc: 'Manange payment methods for the current organization.',
+			handler: mockHandler,
+		}),
+		command({
+			name: 'create',
+			desc: 'Create a new organization',
+			options: {
+				...globalFlags,
+				orgName: positional('organization-name').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'db-transfer',
+			desc: 'Transfers a database to another organization',
+			options: {
+				...globalFlags,
+				dbName: positional('database-name').required(),
+				orgName: positional('organization-name').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'destroy',
+			desc: 'Destroy an organization',
+			options: {
+				...globalFlags,
+				slug: positional().required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'invites',
+			desc: 'Manage your organization invites',
+		}),
+		command({
+			name: 'invoice',
+			desc: 'Manage Invoices',
+			subcommands: [
+				command({
+					aliases: ['create', 'invite'],
+					desc: 'Invite an email to join the current organization',
+					options: {
+						...globalFlags,
+						admin: boolean().alias('a').desc('Invite the user as an admin'),
+						email: positional().required(),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					name: 'list',
+					desc: 'List invites in the current organization',
+					options: globalFlags,
+					handler: mockHandler,
+				}),
+				command({
+					name: 'remove',
+					desc: 'Remove a pending invite to an email to join the current organization',
+					options: {
+						...globalFlags,
+						email: positional().required(),
+					},
+					handler: mockHandler,
+				}),
+			],
+		}),
+		command({
+			name: 'list',
+			desc: 'List your organizations',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'members',
+			desc: 'Manage your organization members',
+			subcommands: [
+				command({
+					name: 'add',
+					desc: 'Add a member to current organization',
+					options: {
+						...globalFlags,
+						admin: boolean().alias('a').desc('Add the user as an admin'),
+						username: positional().required(),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					aliases: ['create', 'invite'],
+					desc: 'Invite an email to join the current organization',
+					options: {
+						...globalFlags,
+						admin: boolean().alias('a').desc('Add the user as an admin'),
+						email: positional().required(),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					name: 'list',
+					desc: 'List members of current organization',
+					options: globalFlags,
+					handler: mockHandler,
+				}),
+				command({
+					name: 'rm',
+					desc: 'Remove a member from the current organization',
+					options: {
+						...globalFlags,
+						username: positional().required(),
+					},
+					handler: mockHandler,
+				}),
+			],
+		}),
+		command({
+			name: 'switch',
+			desc: 'Switch to an organization as the context for your commands.',
+			options: {
+				...globalFlags,
+				slug: positional('organization-slug'),
+			},
+			handler: mockHandler,
+		}),
+	],
+}));
+
 run(commands, {
-	cliName: 'turso',
+	name: 'turso',
+	description: 'Turso CLI',
 	omitKeysOfUndefinedOptions: true,
 	theme: (event) => {
 		if (event.type === 'commandHelp') {
@@ -712,8 +844,8 @@ run(commands, {
 
 		if (event.type === 'globalHelp') {
 			const cliName = event.cliName;
-			console.log('Turso CLI');
-			console.log('\nUsage:');
+			if (event.description) console.log(`${event.description}\n\n`);
+			console.log('Usage:');
 			console.log(`  ${cliName ? cliName + ' ' : ''}[command]`);
 
 			if (event.commands) {

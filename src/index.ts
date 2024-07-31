@@ -716,6 +716,77 @@ commands.push(command({
 	],
 }));
 
+commands.push(command({
+	name: 'plan',
+	desc: 'Manage your organization plan',
+	subcommands: [
+		command({
+			name: 'overages',
+			desc: 'Manage your current organization overages',
+			subcommands: [
+				command({
+					name: 'disable',
+					desc: 'Disable overages for your current organization plan',
+					options: globalFlags,
+					handler: mockHandler,
+				}),
+				command({
+					name: 'enable',
+					desc: 'Enable overages for your current organization plan',
+					options: globalFlags,
+					handler: mockHandler,
+				}),
+			],
+		}),
+		command({
+			name: 'select',
+			desc: 'Change your current organization plan',
+			options: {
+				...globalFlags,
+				overages: boolean().desc(
+					'Enable or disable overages from the plan. If not selected, current overages configuration will not be changed.',
+				),
+				timeline: string().alias('t').enum('monthly', 'yearly').desc(
+					'Select the plan timeline. If not selected, current plan timeline will not be changed.',
+				),
+			},
+		}),
+		command({
+			name: 'show',
+			desc: 'Show your current organization plan',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'upgrade',
+			desc: 'Upgrade your current organization plan',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+	],
+}));
+
+commands.push(command({
+	name: 'quickstart',
+	desc: 'New to Turso? Start here!',
+	options: globalFlags,
+	handler: mockHandler,
+}));
+
+commands.push(command({
+	name: 'relax',
+	desc: `Sometimes you feel like you're working too hard... relax!`,
+	options: globalFlags,
+	handler: mockHandler,
+}));
+
+commands.push(command({
+	name: 'update',
+	desc: `Update the CLI to the latest version`,
+	options: globalFlags,
+	handler: mockHandler,
+}));
+
 run(commands, {
 	name: 'turso',
 	description: 'Turso CLI',

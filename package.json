@@ -1,19 +1,19 @@
 {
-	"name": "brocli-turso-showcase",
+	"name": "brocli-showcase",
 	"type": "module",
 	"author": "Drizzle Team",
 	"version": "0.0.1",
-	"description": "Mock Turso CLI built with BroCLI",
+	"description": "Mock Turso, Supabase CLI built with BroCLI",
 	"homepage": "https://github.com/drizzle-team/brocli",
 	"scripts": {
-		"turso": "tsx src/index.ts",
-		"lint": "dprint check --list-different"
+		"turso": "tsx src/turso.ts",
+		"supabase": "tsx src/supabase.ts"
 	},
 	"devDependencies": {
 		"tsx": "^4.16.2",
 		"typescript": "latest"
 	},
 	"dependencies": {
-		"@drizzle-team/brocli": "^0.9.2"
+		"@drizzle-team/brocli": "^0.10.0"
 	}
 }

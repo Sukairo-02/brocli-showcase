@@ -633,6 +633,509 @@ commands.push(command({
 	},
 }));
 
+const globalsWithRef = {
+	...globalFlags,
+	projectRef: string('project-ref').desc('Project ref of the Supabase project.'),
+};
+
+commands.push(command({
+	name: 'branches',
+	shortDesc: 'Manage Supabase preview branches',
+	subcommands: [
+		command({
+			name: 'create',
+			desc: 'Create a preview branch',
+			options: {
+				...globalsWithRef,
+				region: string().desc('Select a region to deploy the branch database.'),
+				name: positional(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'delete',
+			desc: 'Delete a preview branch',
+			options: {
+				...globalsWithRef,
+				branchId: positional('branch-id'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'disable',
+			desc: 'Disable a preview branch',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'get',
+			desc: 'Retrieve details of a preview branch',
+			options: {
+				...globalsWithRef,
+				branchId: positional('branch-id'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'list',
+			desc: 'List all preview branches',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'update',
+			desc: 'Update a preview branch',
+			options: {
+				...globalsWithRef,
+				branchId: positional('branch-id'),
+				gitBranch: string('git-branch').desc('Change the associated git branch.'),
+				name: string().desc('Rename the preview branch.'),
+				resetOnPush: boolean('reset-on-push').desc('Reset the preview branch on git push.'),
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+const domainsFlags = {
+	...globalsWithRef,
+	includeRawOutput: boolean('include-raw-output').desc('Include raw output (useful for debugging).'),
+};
+
+commands.push(command({
+	name: 'domains',
+	shortDesc: 'Manage custom domain names for Supabase projects',
+	desc: `Manage custom domain names for Supabase projects.\n
+Use of custom domains and vanity subdomains is mutually exclusive.`,
+	subcommands: [
+		command({
+			name: 'activate',
+			shortDesc: 'Activate the custom hostname for a project',
+			desc: `Activates the custom hostname configuration for a project.\n
+This reconfigures your Supabase project to respond to requests on your custom hostname.
+After the custom hostname is activated, your project's auth services will no longer function on the Supabase-provisioned subdomain.`,
+			options: domainsFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'create',
+			shortDesc: 'Create a custom hostname',
+			desc: `Create a custom hostname for your Supabase project.\n
+Expects your custom hostname to have a CNAME record to your Supabase project's subdomain.`,
+			options: {
+				...domainsFlags,
+				customHostname: string('custom-hostname').desc('The custom hostname to use for your Supabase project.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'delete',
+			shortDesc: 'Deletes the custom hostname config for your project',
+			options: domainsFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'get',
+			shortDesc: 'Get the current custom hostname config',
+			desc: 'Retrieve the custom hostname config for your project, as stored in the Supabase platform.',
+			options: domainsFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'reverify',
+			shortDesc: 'Re-verify the custom hostname config for your project',
+			options: domainsFlags,
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(command({
+	name: 'encryption',
+	shortDesc: 'Manage encryption keys of Supabase projects',
+	subcommands: [
+		command({
+			name: 'get-root-key',
+			shortDesc: 'Get the root encryption key of a Supabase project',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'update-root-key',
+			shortDesc: 'Update root encryption key of a Supabase project',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(command({
+	name: 'functions',
+	shortDesc: 'Manage Supabase Edge functions',
+	subcommands: [
+		command({
+			name: 'delete',
+			shortDesc: 'Delete a Function from Supabase',
+			desc: 'Delete a Function from the linked Supabase project. This does NOT remove the Function locally.',
+			options: {
+				...globalFlags,
+				projectRef: string('project-ref').desc('Project ref of the Supabase project.'),
+				functionName: positional('Function name'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'deploy',
+			shortDesc: 'Deploy a Function to Supabase',
+			options: {
+				...globalFlags,
+				projectRef: string('project-ref').desc('Project ref of the Supabase project.'),
+				importMap: string('import-map').desc('Path to import map file.'),
+				noVerifyJWT: boolean('no-verify-jwt').desc('Disable JWT verification for the Function.'),
+				functionName: positional('Function name'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'download',
+			shortDesc: 'Download a Function from Supabase',
+			options: {
+				...globalFlags,
+				projectRef: string('project-ref').desc('Project ref of the Supabase project.'),
+				legacyBundle: boolean().desc('Use legacy bundling mechanism.'),
+				functionName: positional('Function name').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'list',
+			shortDesc: 'List all Functions in Supabase',
+			options: {
+				...globalFlags,
+				projectRef: string('project-ref').desc('Project ref of the Supabase project.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'new',
+			shortDesc: 'Create a new Function locally',
+			options: {
+				...globalFlags,
+				functionName: positional('Function name').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'serve',
+			shortDesc: 'Serve all Functions locally',
+			options: {
+				...globalFlags,
+				envFile: string('env-file').desc('Path to an env file to be populated to the Function environment.'),
+				importMap: string('import-map').desc('Path to import map file.'),
+				inspect: boolean().desc('Alias of --inspect-mode brk.'),
+				inspectMain: boolean('Allow inspectiong the main worker.'),
+				inspectMode: string('inspect-mode').enum('run', 'brk', 'wait').desc(
+					'Activate inspector capability for debugging.',
+				),
+				noVerifyJWT: boolean('no-verify-jwt').desc('Disable JWT verification for the Function.'),
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push({
+	name: 'network-bans',
+	shortDesc: 'Manage network bans',
+	subcommands: [
+		command({
+			name: 'get',
+			shortDesc: 'Get the current network bans',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'remove',
+			shortDesc: 'Remove a network ban',
+			options: {
+				...globalsWithRef,
+				dbUnbanIp: string('db-unban-ip').desc('IP to allow DB connections from.'), // strings
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+});
+
+commands.push({
+	name: 'network-restrictions',
+	shortDesc: 'Manage network restrictions',
+	subcommands: [
+		command({
+			name: 'get',
+			shortDesc: 'Get the current network restrictions',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'update',
+			shortDesc: 'Update network restrictions',
+			options: {
+				...globalsWithRef,
+				bypassCidrChecks: boolean('bypass-cidr-checks').desc('Bypass some of the CIDR validation checks.'),
+				dbAllowCidr: string('db-allow-cidr').desc('CIDR to allow DB connections from.'), // strings
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+});
+
+commands.push({
+	name: 'orgs',
+	shortDesc: 'Manage Supabase organizations',
+	subcommands: [
+		command({
+			name: 'create',
+			shortDesc: 'Create an organization',
+			desc: 'Create an organization for the logged-in user.',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'list',
+			shortDesc: 'List all organizations',
+			desc: 'List all organizations the logged-in user belongs.',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+});
+
+commands.push({
+	name: 'postgres-config',
+	shortDesc: 'Manage Postgres database config',
+	subcommands: [
+		command({
+			name: 'get',
+			shortDesc: 'Get the current Postgres database config overrides',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'update',
+			shortDesc: 'Update Postgres database config',
+			options: {
+				...globalsWithRef,
+				replaceExistingOverrides: boolean('replace-existing-overrides').desc(
+					'If true, replaces all existing overrides with the ones provided. If false, merges existing overrides with the ones provided.',
+				).default(false),
+			},
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+});
+
+commands.push({
+	name: 'projects',
+	shortDesc: 'Manage Supabase projects',
+	subcommands: [
+		command({
+			name: 'api-keys',
+			shortDesc: 'List all API keys for a Supabase project',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'create',
+			shortDesc: 'Create a project on Supabase',
+			options: {
+				...globalsWithRef,
+				projectName: positional('project name'),
+				dbPassword: string('db-password').desc('Database password of the project.'),
+				orgId: string('org-id').desc('Organization ID to create the project in.'),
+				region: string().desc('Select a region close to you for the best performance.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'delete',
+			shortDesc: 'Delete a Supabase project',
+			options: {
+				...globalFlags,
+				ref: positional().required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'list',
+			shortDesc: 'List all Supabase projects',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+});
+
+commands.push(command({
+	name: 'secrets',
+	shortDesc: 'Manage Supabase secrets',
+	subcommands: [
+		command({
+			name: 'list',
+			desc: 'List all secrets on Supabase',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'set',
+			desc: 'Set a secret(s) on Supabase',
+			options: {
+				...globalsWithRef,
+				secret: positional('NAME=VALUE').required(), // Have to make it an array...
+				envFile: string('env-file').desc('Read secrets from a .env file.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'unset',
+			desc: 'Unset a secret(s) on Supabase',
+			options: {
+				...globalsWithRef,
+				name: positional('NAME'),
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(command({
+	name: 'services',
+	shortDesc: 'Show versions of all Supabase services',
+	options: globalFlags,
+	handler: mockHandler,
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(command({
+	name: 'snippets',
+	shortDesc: 'Manage Supabase SQL snippets',
+	subcommands: [
+		command({
+			name: 'download',
+			shortDesc: 'Download contents of a SQL snippet',
+			options: {
+				...globalFlags,
+				snippetId: positional('snippet-id').required(),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'list',
+			shortDesc: 'List all SQL snippets',
+			options: globalFlags,
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(command({
+	name: 'ssl-enforcement',
+	shortDesc: 'Manage SSL enforcement configuration',
+	subcommands: [
+		command({
+			name: 'get',
+			shortDesc: 'Get the current SSL enforcement configuration',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'update',
+			shortDesc: 'Update SSL enforcement configuration',
+			options: {
+				...globalsWithRef,
+				set: boolean('set-db-ssl-enforcement').required().desc( // No need for two separate flags, BroCLI can do --flag false
+					'Whether the DB should enable (true) or disable (false) SSL enforcement for all external connections.',
+				),
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+const ssoFlags = {
+	...globalsWithRef,
+	output: string().alias('o').enum('pretty', 'json', 'toml', 'yaml').default('pretty'),
+};
+
+commands.push({
+	name: 'sso',
+	shortDesc: 'Manage Single Sign-On (SSO) authentication for projects',
+	subcommands: [
+		command({
+			name: 'add',
+			desc: 'Add a new SSO identity provider',
+		}),
+		command({
+			name: 'info',
+			desc: 'Returns the SAML SSO settings required for the identity provider',
+		}),
+		command({
+			name: 'list',
+			desc: 'List all SSO identity providers for a project',
+		}),
+		command({
+			name: 'remove',
+			desc: 'Remove an existing SSO identity provider',
+		}),
+		command({
+			name: 'show',
+			desc: 'Show information about an SSO identity provider',
+		}),
+		command({
+			name: 'update',
+			desc: 'Update information about an SSO identity provider',
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+});
+
 run(commands, {
 	name: 'supabase',
 	description: 'Supabase CLI 1.176.6',

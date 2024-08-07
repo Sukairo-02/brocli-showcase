@@ -1108,27 +1108,90 @@ commands.push({
 	subcommands: [
 		command({
 			name: 'add',
-			desc: 'Add a new SSO identity provider',
+			shortDesc: 'Add a new SSO identity provider',
+			desc: 'Add and configure a new connection to a SSO identity provider to your Supabase project.',
+			options: {
+				...ssoFlags,
+				attributeMappingFile: string('attribute-mapping-file').desc(
+					'File containing a JSON mapping between SAML attributes to custom JWT claims.',
+				),
+				domains: string().desc('Comma separated list of email domains to associate with the added identity provider.'), // strings
+				metadataFile: string('metadata-file').desc(
+					'File containing a SAML 2.0 Metadata XML document describing the identity provider.',
+				),
+				metadataUrl: string('metadata-url').desc(
+					'URL pointing to a SAML 2.0 Metadata XML document describing the identity provider.',
+				),
+				skipUrlValidation: boolean('skip-url-validation').desc(
+					'Whether local validation of the SAML 2.0 Metadata URL should not be performed.',
+				),
+				type: string().alias('t').enum('saml').desc('Type of identity provider (according to supported protocol).'),
+			},
+			handler: mockHandler,
 		}),
 		command({
 			name: 'info',
-			desc: 'Returns the SAML SSO settings required for the identity provider',
+			shortDesc: 'Returns the SAML SSO settings required for the identity provider',
+			desc:
+				'Returns all of the important SSO information necessary for your project to be registered with a SAML 2.0 compatible identity provider.',
+			options: ssoFlags,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'list',
-			desc: 'List all SSO identity providers for a project',
+			shortDesc: 'List all SSO identity providers for a project',
+			desc: 'List all connections to a SSO identity provider to your Supabase project.',
+			options: ssoFlags,
+			handler: mockHandler,
 		}),
 		command({
 			name: 'remove',
-			desc: 'Remove an existing SSO identity provider',
+			shortDesc: 'Remove an existing SSO identity provider',
+			desc:
+				'Remove a connection to an already added SSO identity provider. Removing the provider will prevent existing users from logging in. Please treat this command with care.',
+			options: {
+				...ssoFlags,
+				providerId: positional('provider-id').required(),
+			},
+			handler: mockHandler,
 		}),
 		command({
 			name: 'show',
-			desc: 'Show information about an SSO identity provider',
+			shortDesc: 'Show information about an SSO identity provider',
+			desc:
+				`Provides the information about an established connection to an identity provider.\nYou can use --metadata to obtain the raw SAML 2.0 Metadata XML document stored in your project's configuration.`,
+			options: {
+				...ssoFlags,
+				providerId: positional('provider-id').required(),
+				metadata: boolean().desc('Show SAML 2.0 XML Metadata only'),
+			},
+			handler: mockHandler,
 		}),
 		command({
 			name: 'update',
-			desc: 'Update information about an SSO identity provider',
+			shortDesc: 'Update information about an SSO identity provider',
+			desc: 'Update the configuration settings of a already added SSO identity provider.',
+			options: {
+				...ssoFlags,
+				providerId: positional('provider-id').required(),
+				addDomains: string('add-domains').desc(
+					'Add this comma separated list of email domains to the identity provider.',
+				), // strings
+				attributeMappingFile: string('attribute-mapping-file').desc(
+					'File containing a JSON mapping between SAML attributes to custom JWT claims.',
+				),
+				domains: string().desc('Comma separated list of email domains to associate with the added identity provider.'), // strings
+				metadataFile: string('metadata-file').desc(
+					'File containing a SAML 2.0 Metadata XML document describing the identity provider.',
+				),
+				metadataUrl: string('metadata-url').desc(
+					'URL pointing to a SAML 2.0 Metadata XML document describing the identity provider.',
+				),
+				removeDomains: string().desc('Remove this comma separated list of email domains from the identity provider.'), // strings
+				skipUrlValidation: boolean('skip-url-validation').desc(
+					'Whether local validation of the SAML 2.0 Metadata URL should not be performed.',
+				),
+			},
 		}),
 	],
 	metadata: {
@@ -1136,11 +1199,287 @@ commands.push({
 	},
 });
 
+const storageFlags = {
+	...globalFlags,
+	linked: boolean().desc('Connects to Storage API of the linked project.').default(true),
+	local: boolean().desc('Connects to Storage API of the local database.'),
+};
+
+commands.push(command({
+	name: 'storage',
+	shortDesc: 'Manage Supabase Storage objects',
+	subcommands: [
+		command({
+			name: 'cp',
+			shortDesc: 'Copy objects from src to dst path',
+			options: {
+				...storageFlags,
+				src: positional().required(),
+				dst: positional().required(),
+				cacheControl: string('cache-control').desc('Custom Cache-Control header for HTTP upload.').default(
+					'max-age=3600',
+				),
+				contentType: string('content-type').desc('Custom Content-Type header for HTTP upload.').default('auto-detect'),
+				jobs: number().alias('j').int().min(1).desc('Maximum number of parallel jobs.').default(1),
+				recursive: boolean().alias('r').desc('Recursively copy a directory.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'ls',
+			shortDesc: 'List objects by path prefix',
+			options: {
+				...storageFlags,
+				recursive: boolean().alias('r').desc('Recursively list a directory.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'mv',
+			shortDesc: 'Move objects from src to dst path',
+			options: {
+				...storageFlags,
+				file: positional().required(),
+				recursive: boolean().alias('r').desc('Recursively move a directory.'),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'rm',
+			shortDesc: 'Remove objects by file path',
+			options: {
+				...storageFlags,
+				file: positional().required(),
+				recursive: boolean().alias('r').desc('Recursively remove a directory.'),
+			},
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(command({
+	name: 'vanity-subdomains',
+	shortDesc: 'Manage vanity subdomains for Supabase projects',
+	desc: `Manage vanity subdomains for Supabase projects.\n
+Usage of vanity subdomains and custom domains is mutually exclusive.`,
+	subcommands: [
+		command({
+			name: 'activate',
+			shortDesc: 'Activate a vanity subdomain',
+			desc: `Activate a vanity subdomain for your Supabase project.\n
+This reconfigures your Supabase project to respond to requests on your vanity subdomain.
+After the vanity subdomain is activated, your project's auth services will no longer function on the {project-ref}.{supabase-domain} hostname.`,
+			options: {
+				...globalsWithRef,
+				desiredSubdomain: string('desired-subdomain').desc(
+					'The desired vanity subdomain to use for your Supabase project.',
+				),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'check-availability',
+			shortDesc: 'Checks if a desired subdomain is available for use',
+			options: {
+				...globalsWithRef,
+				desiredSubdomain: string('desired-subdomain').desc(
+					'The desired vanity subdomain to use for your Supabase project.',
+				),
+			},
+			handler: mockHandler,
+		}),
+		command({
+			name: 'delete',
+			shortDesc: `Deletes a project's vanity subdomain`,
+			desc: 'Deletes the vanity subdomain for a project, and reverts to using the project ref for routing.',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+		command({
+			name: 'get',
+			shortDesc: 'Get the current vanity subdomain',
+			options: globalsWithRef,
+			handler: mockHandler,
+		}),
+	],
+	metadata: {
+		category: 'Management APIs',
+	},
+}));
+
+commands.push(
+	command({
+		name: 'completion',
+		shortDesc: 'Generate the autocompletion script for the specified shell',
+		desc: `Generate the autocompletion script for supabase for the specified shell.
+See each sub-command's help for details on how to use the generated script.`,
+		subcommands: [
+			command({
+				name: 'bash',
+				shortDesc: 'Generate the autocompletion script for bash',
+				desc: `Generate the autocompletion script for the bash shell.
+
+This script depends on the 'bash-completion' package.
+If it is not installed already, you can install it via your OS's package manager.
+
+To load completions in your current shell session:
+
+        source <(supabase completion bash)
+
+To load completions for every new session, execute once:
+
+#### Linux:
+
+        supabase completion bash > /etc/bash_completion.d/supabase
+
+#### macOS:
+
+        supabase completion bash > $(brew --prefix)/etc/bash_completion.d/supabase
+
+You will need to start a new shell for this setup to take effect.`,
+				options: {
+					...globalFlags,
+					noDescriptions: boolean('no-descriptions').desc('disable completion descriptions'),
+				},
+				handler: mockHandler,
+			}),
+			command({
+				name: 'fish',
+				shortDesc: 'Generate the autocompletion script for fish',
+				desc: `Generate the autocompletion script for the fish shell.
+
+To load completions in your current shell session:
+
+        supabase completion fish | source
+
+To load completions for every new session, execute once:
+
+        supabase completion fish > ~/.config/fish/completions/supabase.fish
+
+You will need to start a new shell for this setup to take effect.`,
+				options: {
+					...globalFlags,
+					noDescriptions: boolean('no-descriptions').desc('disable completion descriptions'),
+				},
+				handler: mockHandler,
+			}),
+			command({
+				name: 'powershell',
+				shortDesc: 'Generate the autocompletion script for powershell',
+				desc: `Generate the autocompletion script for powershell.
+
+To load completions in your current shell session:
+
+        supabase completion powershell | Out-String | Invoke-Expression
+
+To load completions for every new session, add the output of the above command
+to your powershell profile.`,
+				options: {
+					...globalFlags,
+					noDescriptions: boolean('no-descriptions').desc('disable completion descriptions'),
+				},
+				handler: mockHandler,
+			}),
+			command({
+				name: 'zsh',
+				shortDesc: 'Generate the autocompletion script for zsh',
+				desc: `Generate the autocompletion script for the zsh shell.
+
+If shell completion is not already enabled in your environment you will need
+to enable it.  You can execute the following once:
+
+        echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+To load completions in your current shell session:
+
+        source <(supabase completion zsh)
+
+To load completions for every new session, execute once:
+
+#### Linux:
+
+        supabase completion zsh > "\${fpath[1]}/_supabase"
+
+#### macOS:
+
+        supabase completion zsh > $(brew --prefix)/share/zsh/site-functions/_supabase
+
+You will need to start a new shell for this setup to take effect.`,
+				options: {
+					...globalFlags,
+					noDescriptions: boolean('no-descriptions').desc('disable completion descriptions'),
+				},
+				handler: mockHandler,
+			}),
+		],
+		metadata: {
+			category: 'Additional Commands',
+		},
+	}),
+);
+
 run(commands, {
 	name: 'supabase',
 	description: 'Supabase CLI 1.176.6',
 	omitKeysOfUndefinedOptions: true,
 	version: '1.176.6',
+	theme: (event) => {
+		// Slighlty adjusted default handler to support categories attached in metadata
+		if (event.type === 'global_help') {
+			const cliName = event.name;
+			const desc = event.description;
+			const commands = event.commands.filter((c) => !c.hidden);
+
+			if (desc?.length) {
+				console.log(`${desc}\n`);
+			}
+
+			console.log('Usage:');
+			console.log(`  ${cliName ? cliName + ' ' : ''}[command]`);
+
+			if (commands.length) {
+				const categorized: Record<string, Command[]> = {};
+				commands.forEach((c) => {
+					if (c.metadata && typeof c.metadata === 'object' && typeof c.metadata.category === 'string') {
+						categorized[c.metadata.category] = categorized[c.metadata.category]
+							? [...categorized[c.metadata.category]!, c]
+							: [c];
+					} else {
+						categorized['Other Commands'] = categorized['Other Commands']
+							? [...categorized['Other Commands'], c]
+							: [c];
+					}
+				});
+
+				Object.entries(categorized).forEach(([category, commands]) => {
+					console.log(`\n${category}:`);
+					const padding = 3;
+					const maxLength = commands.reduce((p, e) => e.name.length > p ? e.name.length : p, 0);
+					const paddedLength = maxLength + padding;
+
+					const data = commands.map((s) =>
+						`  ${s.name.padEnd(paddedLength)}${(s.shortDesc ?? s.desc)?.split('\n').shift()!}`
+					)
+						.join('\n');
+					console.log(data);
+				});
+			} else {
+				console.log('\nNo available commands.');
+			}
+
+			console.log('\nFlags:');
+			console.log(`  -h, --help      help${cliName ? ` for ${cliName}` : ''}`);
+			console.log(`  -v, --version   version${cliName ? ` for ${cliName}` : ''}`);
+			console.log('\n');
+
+			return true;
+		}
+
+		return false;
+	},
 	hook: (event, command) => {
 		if (event === 'before') {
 			console.log('Supabase CLI\n');

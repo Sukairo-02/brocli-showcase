@@ -243,6 +243,7 @@ commands.push(
 							projectId: string('project-id').desc('Generate types from a project ID.'),
 							schema: string().alias('s').desc('Comma separated list of schema to include.'),
 						},
+						handler: mockHandler,
 						metadata: {
 							examples: [
 								`supabase gen types typescript --local`,
@@ -383,7 +384,7 @@ commands.push(command({
 					handler: mockHandler,
 				}),
 				command({
-					name: 'table-index-sizes',
+					name: 'total-index-sizes',
 					desc: 'Show total size of all indexes',
 					options: inspectFlags,
 					handler: mockHandler,
@@ -445,6 +446,7 @@ commands.push(command({
 		noBrowser: boolean('no-browser').desc('Do not open browser automatically'),
 		token: string().desc('Use provided token instead of automatic login flow'),
 	},
+	handler: mockHandler,
 	metadata: {
 		category: 'Local Development',
 	},
@@ -608,6 +610,7 @@ commands.push(command({
 				linked: boolean().desc('Runs pgTAP tests on the linked project.'),
 				local: boolean().desc('Runs pgTAP tests on the local database.').default(true),
 			},
+			handler: mockHandler,
 		}),
 		command({
 			name: 'new',
@@ -616,6 +619,7 @@ commands.push(command({
 				...globalFlags,
 				template: string().alias('t').enum('pgtap').desc('Template framework to generate').default('pgtap'),
 			},
+			handler: mockHandler,
 		}),
 	],
 	metadata: {
@@ -950,6 +954,7 @@ commands.push({
 					'If true, replaces all existing overrides with the ones provided. If false, merges existing overrides with the ones provided.',
 				).default(false),
 			},
+			handler: mockHandler,
 		}),
 	],
 	metadata: {
@@ -1192,6 +1197,7 @@ commands.push({
 					'Whether local validation of the SAML 2.0 Metadata URL should not be performed.',
 				),
 			},
+			handler: mockHandler,
 		}),
 	],
 	metadata: {

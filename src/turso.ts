@@ -581,6 +581,33 @@ commands.push(command({
 		command({
 			name: 'invites',
 			desc: 'Manage your organization invites',
+			subcommands: [
+				command({
+					name: 'create',
+					shortDesc: 'Invite an email to join the current organization',
+					options: {
+						...globalFlags,
+						email: positional().required(),
+						admin: boolean().alias('a').desc('Invite the user as an admin'),
+					},
+					handler: mockHandler,
+				}),
+				command({
+					name: 'list',
+					shortDesc: 'List invites in the current organization',
+					options: globalFlags,
+					handler: mockHandler,
+				}),
+				command({
+					name: 'remove',
+					shortDesc: 'Remove a pending invite to an email to join the current organization',
+					options: {
+						...globalFlags,
+						email: positional().required(),
+					},
+					handler: mockHandler,
+				}),
+			],
 		}),
 		command({
 			name: 'invoice',
@@ -706,6 +733,7 @@ commands.push(command({
 					'Select the plan timeline. If not selected, current plan timeline will not be changed.',
 				),
 			},
+			handler: mockHandler,
 		}),
 		command({
 			name: 'show',

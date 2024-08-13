@@ -11,6 +11,9 @@ importers:
       '@drizzle-team/brocli':
         specifier: ^0.10.0
         version: 0.10.0
+      latest:
+        specifier: link:@drizzle-team@brocli/latest
+        version: link:@drizzle-team@brocli/latest
     devDependencies:
       tsx:
         specifier: ^4.16.2

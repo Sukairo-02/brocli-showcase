@@ -1466,8 +1466,21 @@ run(commands, {
 					const maxLength = commands.reduce((p, e) => e.name.length > p ? e.name.length : p, 0);
 					const paddedLength = maxLength + padding;
 
-					const data = commands.map((s) =>
-						`  ${s.name.padEnd(paddedLength)}${(s.shortDesc ?? s.desc)?.split('\n').shift()!}`
+					const data = commands.map((c) =>
+						`  ${c.name.padEnd(paddedLength)}${
+							(() => {
+								const desc = c.shortDesc ?? c.desc;
+
+								if (!desc?.length) return '';
+
+								const split = desc.split('\n');
+								const first = split.shift()!;
+
+								const final = [first, ...split.map((s) => ''.padEnd(paddedLength + 2) + s)].join('\n');
+
+								return final;
+							})()
+						}`
 					)
 						.join('\n');
 					console.log(data);
